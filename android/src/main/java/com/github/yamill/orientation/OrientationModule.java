@@ -23,7 +23,6 @@ public class OrientationModule extends ReactContextBaseJavaModule {
 
     public OrientationModule(ReactApplicationContext reactContext, final Activity activity) {
         super(reactContext);
-
         mActivity = activity;
 
         final ReactApplicationContext ctx = reactContext;
@@ -32,7 +31,6 @@ public class OrientationModule extends ReactContextBaseJavaModule {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Configuration newConfig = intent.getParcelableExtra("newConfig");
-                Log.d("receiver", String.valueOf(newConfig.orientation));
 
                 String orientationValue = newConfig.orientation == 1 ? "PORTRAIT" : "LANDSCAPE";
 
@@ -45,7 +43,7 @@ public class OrientationModule extends ReactContextBaseJavaModule {
             }
         };
 
-        activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
+        //activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
 
         LifecycleEventListener listener = new LifecycleEventListener() {
             @Override
@@ -55,12 +53,16 @@ public class OrientationModule extends ReactContextBaseJavaModule {
 
             @Override
             public void onHostPause() {
-                activity.unregisterReceiver(receiver);
+                if (receiver != null) {
+                    activity.unregisterReceiver(receiver);
+                }
             }
 
             @Override
             public void onHostDestroy() {
-                activity.unregisterReceiver(receiver);
+                if (receiver != null) {
+                    activity.unregisterReceiver(receiver);
+                }
             }
         };
 
@@ -95,6 +97,11 @@ public class OrientationModule extends ReactContextBaseJavaModule {
     @ReactMethod
     public void lockToLandscape() {
       mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
+    }
+
+    @ReactMethod
+    public void lockToReverseLandscape() {
+        mActivity.setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_REVERSE_LANDSCAPE);
     }
 
     @ReactMethod

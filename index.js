@@ -16,6 +16,9 @@ module.exports = {
   lockToLandscape() {
     Orientation.lockToLandscape();
   },
+  lockToReverseLandscape() {
+    Orientation.lockToReverseLandscape();
+  },
   unlockAllOrientations() {
     Orientation.unlockAllOrientations();
   },
