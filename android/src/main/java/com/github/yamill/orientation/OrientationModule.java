@@ -24,6 +24,51 @@ public class OrientationModule extends ReactContextBaseJavaModule {
     public OrientationModule(ReactApplicationContext reactContext, final Activity activity) {
         super(reactContext);
         mActivity = activity;
+
+        final ReactApplicationContext ctx = reactContext;
+
+        final BroadcastReceiver receiver = new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Configuration newConfig = intent.getParcelableExtra("newConfig");
+
+                String orientationValue = newConfig.orientation == 1 ? "PORTRAIT" : "LANDSCAPE";
+
+                WritableMap params = Arguments.createMap();
+                params.putString("orientation", orientationValue);
+
+                ctx
+                        .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+                        .emit("orientationDidChange", params);
+            }
+        };
+
+        //activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
+
+        LifecycleEventListener listener = new LifecycleEventListener() {
+            @Override
+            public void onHostResume() {
+                activity.registerReceiver(receiver, new IntentFilter("onConfigurationChanged"));
+            }
+
+            @Override
+            public void onHostPause() {
+                if (receiver != null) {
+                    try  {  activity.unregisterReceiver(receiver); }
+                    catch (IllegalArgumentException e) {}
+                }
+            }
+
+            @Override
+            public void onHostDestroy() {
+                if (receiver != null) {
+                    try  {  activity.unregisterReceiver(receiver); }
+                    catch (IllegalArgumentException e) {}
+                }
+            }
+        };
+
+        reactContext.addLifecycleEventListener(listener);
     }
 
     @Override
